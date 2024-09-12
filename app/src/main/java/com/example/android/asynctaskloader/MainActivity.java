@@ -2,6 +2,7 @@ package com.example.android.asynctaskloader;
 
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -17,7 +18,7 @@ import com.example.android.asynctaskloader.utilities.MovieDbHelper;
 public class MainActivity extends AppCompatActivity {
 
     private EditText title, dateTime, scenario, realisation, music, critique;
-    private Button btnSave, btnShare, btnWipe;
+    private Button btnSave, btnShare, btnShareAll, btnWipe;
     private MovieDbHelper dbHelper;
 
     @Override
@@ -34,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
         btnSave = findViewById(R.id.btn_save);
         btnShare = findViewById(R.id.btn_share);
+        btnShareAll = findViewById(R.id.btn_share_all);
         btnWipe = findViewById(R.id.btn_wipe);
 
         dbHelper = new MovieDbHelper(this);
@@ -48,7 +50,14 @@ public class MainActivity extends AppCompatActivity {
         btnShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                shareReview();
+                shareCurrentReview();
+            }
+        });
+
+        btnShareAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                shareAllReviews();
             }
         });
 
@@ -113,17 +122,82 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void shareReview() {
-        String emailBody = "Titre: " + title.getText().toString() + "\n" +
-                "Date et Heure: " + dateTime.getText().toString() + "\n" +
-                "Scénario: " + scenario.getText().toString() + "\n" +
-                "Réalisation: " + realisation.getText().toString() + "\n" +
-                "Musique: " + music.getText().toString() + "\n" +
-                "Critique: " + critique.getText().toString();
+    private String getAllReviews() {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        String[] projection = {
+            MovieDbHelper.COLUMN_TITLE,
+            MovieDbHelper.COLUMN_DATE_TIME,
+            MovieDbHelper.COLUMN_SCENARIO,
+            MovieDbHelper.COLUMN_REALISATION,
+            MovieDbHelper.COLUMN_MUSIC,
+            MovieDbHelper.COLUMN_CRITIQUE
+        };
+
+        Cursor cursor = db.query(
+            MovieDbHelper.TABLE_NAME,
+            projection,
+            null,
+            null,
+            null,
+            null,
+            null
+        );
+
+        StringBuilder sb = new StringBuilder();
+        while (cursor.moveToNext()) {
+            String title = cursor.getString(cursor.getColumnIndexOrThrow(MovieDbHelper.COLUMN_TITLE));
+            String dateTime = cursor.getString(cursor.getColumnIndexOrThrow(MovieDbHelper.COLUMN_DATE_TIME));
+            int scenario = cursor.getInt(cursor.getColumnIndexOrThrow(MovieDbHelper.COLUMN_SCENARIO));
+            int realisation = cursor.getInt(cursor.getColumnIndexOrThrow(MovieDbHelper.COLUMN_REALISATION));
+            int music = cursor.getInt(cursor.getColumnIndexOrThrow(MovieDbHelper.COLUMN_MUSIC));
+            String critique = cursor.getString(cursor.getColumnIndexOrThrow(MovieDbHelper.COLUMN_CRITIQUE));
+
+            sb.append("Titre: ").append(title).append("\n")
+            .append("Date et Heure: ").append(dateTime).append("\n")
+            .append("Scénario: ").append(scenario).append("\n")
+            .append("Réalisation: ").append(realisation).append("\n")
+            .append("Musique: ").append(music).append("\n")
+            .append("Critique: ").append(critique).append("\n\n");
+        }
+        cursor.close();
+        return sb.toString();
+    }
+
+    private void shareCurrentReview() {
+        String titleText = title.getText().toString();
+        String dateTimeText = dateTime.getText().toString();
+        String scenarioText = scenario.getText().toString();
+        String realisationText = realisation.getText().toString();
+        String musicText = music.getText().toString();
+        String critiqueText = critique.getText().toString();
+
+        String emailBody = "Titre: " + titleText + "\n" +
+                "Date et Heure: " + dateTimeText + "\n" +
+                "Scénario: " + scenarioText + "\n" +
+                "Réalisation: " + realisationText + "\n" +
+                "Musique: " + musicText + "\n" +
+                "Critique: " + critiqueText;
 
         Intent emailIntent = new Intent(Intent.ACTION_SEND);
         emailIntent.setType("plain/text");
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Critique de Film");
+        emailIntent.putExtra(Intent.EXTRA_TEXT, emailBody);
+
+        startActivity(Intent.createChooser(emailIntent, "Envoyer par email..."));
+    }
+
+
+    private void shareAllReviews() {
+        String emailBody = getAllReviews();
+
+        if (emailBody.isEmpty()) {
+            Toast.makeText(this, "Aucune critique à partager.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Intent emailIntent = new Intent(Intent.ACTION_SEND);
+        emailIntent.setType("plain/text");
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Critiques de Films");
         emailIntent.putExtra(Intent.EXTRA_TEXT, emailBody);
 
         startActivity(Intent.createChooser(emailIntent, "Envoyer par email..."));
@@ -146,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
                 !music.getText().toString().isEmpty() &&
                 !critique.getText().toString().isEmpty();
 
+        btnShare.setEnabled(isAllFieldsFilled); 
         btnSave.setEnabled(isAllFieldsFilled);
-        btnShare.setEnabled(isAllFieldsFilled);
     }
 }
