@@ -1,0 +1,63 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Titre du film" />
+
+    <EditText
+        android:id="@+id/date_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Date et Heure de la projection" />
+
+    <EditText
+        android:id="@+id/scenario"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:hint="Note pour le scénario" />
+
+    <EditText
+        android:id="@+id/realisation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:hint="Note pour la réalisation" />
+
+    <EditText
+        android:id="@+id/music"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:hint="Note pour la musique" />
+
+    <EditText
+        android:id="@+id/critique"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Critique du film" />
+
+    <Button
+        android:id="@+id/btn_wipe"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Vider les champs" />
+
+    <Button
+        android:id="@+id/btn_save"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sauvegarder" />
+
+    <Button
+        android:id="@+id/btn_share"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Partager par email" />
+</LinearLayout>
