@@ -6,6 +6,6 @@ This is an Android app that allows users to note a movie and write a review abou
 
 ## Features
 
-- Add a review
-- Save it in sqlite database
-- Share it with android share intent
+- Write reviews about movies
+- Share and save the current edited review in the database
+- Share all reviews stored in the database at once
